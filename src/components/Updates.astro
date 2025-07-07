@@ -1,0 +1,77 @@
+---
+import updatesEs from '../content/updates.es.md?raw';
+import updatesEn from '../content/updates.en.md?raw';
+---
+
+<section class="updates-section">
+	<div class="container">
+		<h2 class="updates-title" id="updates-title">Novedades</h2>
+		<div id="updates-content" class="updates-content"></div>
+	</div>
+</section>
+
+<script type="module">
+import { marked } from 'marked';
+
+document.addEventListener('DOMContentLoaded', function() {
+	const updates = {
+		es: updatesEs?.trim() || 'Iremos anunciando el progreso del estado de Grisha.',
+		en: updatesEn?.trim() || "We will be announcing updates on Grisha's condition."
+	};
+	const titles = {
+		es: 'Novedades',
+		en: 'Updates'
+	};
+	function getCurrentLang() {
+		return localStorage.getItem('selectedLanguage') || (navigator.language.startsWith('es') ? 'es' : 'en');
+	}
+	function renderUpdates(lang) {
+		document.getElementById('updates-title').textContent = titles[lang];
+		document.getElementById('updates-content').innerHTML = marked.parse(updates[lang]);
+	}
+	let currentLang = getCurrentLang();
+	renderUpdates(currentLang);
+	const observer = new MutationObserver(() => {
+		const newLang = getCurrentLang();
+		if (newLang !== currentLang) {
+			currentLang = newLang;
+			renderUpdates(currentLang);
+		}
+	});
+	observer.observe(document.body, { subtree: true, childList: true, attributes: true });
+	document.querySelectorAll('.lang-btn').forEach(btn => {
+		btn.addEventListener('click', function() {
+			const lang = this.getAttribute('data-lang');
+			renderUpdates(lang);
+		});
+	});
+});
+</script>
+
+<style>
+	.updates-section {
+		background: #f5f7fa;
+		padding: 3rem 0 2rem 0;
+		margin-top: 2rem;
+		border-top: 2px solid #e0e0e0;
+	}
+	.updates-title {
+		text-align: center;
+		color: #2c3e50;
+		font-size: 2rem;
+		margin-bottom: 1.5rem;
+		font-weight: 700;
+	}
+	.updates-content {
+		max-width: 800px;
+		margin: 0 auto;
+		font-size: 1.1rem;
+		line-height: 1.7;
+		color: #34495e;
+		background: #fff;
+		border-radius: 12px;
+		box-shadow: 0 2px 10px rgba(44,62,80,0.06);
+		padding: 2rem 1.5rem;
+		min-height: 80px;
+	}
+</style> 

@@ -1,0 +1,120 @@
+---
+// Language selector component
+---
+
+<div class="language-selector">
+	<button class="lang-btn" data-lang="en" id="lang-en">EN</button>
+	<button class="lang-btn" data-lang="es" id="lang-es">ES</button>
+</div>
+
+<script>
+	// Language detection and switching functionality
+	document.addEventListener('DOMContentLoaded', function() {
+		const langButtons = document.querySelectorAll('.lang-btn');
+		const currentLang = localStorage.getItem('selectedLanguage') || 
+						   (navigator.language.startsWith('es') ? 'es' : 'en');
+		
+		// Set initial language
+		setLanguage(currentLang);
+		
+		// Add click handlers
+		langButtons.forEach(btn => {
+			btn.addEventListener('click', function() {
+				const lang = this.getAttribute('data-lang');
+				setLanguage(lang);
+			});
+		});
+		
+		function setLanguage(lang) {
+			// Store in localStorage
+			localStorage.setItem('selectedLanguage', lang);
+			
+			// Update button states
+			langButtons.forEach(btn => {
+				btn.classList.remove('active');
+				if (btn.getAttribute('data-lang') === lang) {
+					btn.classList.add('active');
+				}
+			});
+			
+			// Update content
+			updateContent(lang);
+		}
+		
+		function updateContent(lang) {
+			const translations = {
+				en: {
+					title: 'Help for Grisha',
+					subtitle: 'Let\'s help Grisha on his path to recovery',
+					donate: 'Donate Now',
+					learnMore: 'Learn More'
+				},
+				es: {
+					title: 'Ayuda para Grisha',
+					subtitle: 'Ayudemos a Grisha en su camino hacia la cura',
+					donate: 'Donar Ahora',
+					learnMore: 'Saber Más'
+				}
+			};
+			
+			const content = translations[lang];
+			
+			// Update header content
+			const titleElement = document.querySelector('.header-text h1');
+			const subtitleElement = document.querySelector('.header-text .subtitle');
+			
+			if (titleElement) titleElement.textContent = content.title;
+			if (subtitleElement) subtitleElement.textContent = content.subtitle;
+			
+			// Update page title
+			document.title = content.title;
+		}
+	});
+</script>
+
+<style>
+	.language-selector {
+		position: absolute;
+		top: 1rem;
+		right: 1rem;
+		display: flex;
+		gap: 0.5rem;
+		z-index: 100;
+	}
+
+	.lang-btn {
+		background: rgba(255, 255, 255, 0.2);
+		border: 2px solid rgba(255, 255, 255, 0.3);
+		color: white;
+		padding: 0.5rem 1rem;
+		border-radius: 20px;
+		cursor: pointer;
+		font-weight: bold;
+		transition: all 0.3s ease;
+		backdrop-filter: blur(10px);
+	}
+
+	.lang-btn:hover {
+		background: rgba(255, 255, 255, 0.3);
+		border-color: rgba(255, 255, 255, 0.5);
+		transform: translateY(-2px);
+	}
+
+	.lang-btn.active {
+		background: rgba(255, 255, 255, 0.4);
+		border-color: white;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+	}
+
+	@media (max-width: 768px) {
+		.language-selector {
+			top: 0.5rem;
+			right: 0.5rem;
+		}
+		
+		.lang-btn {
+			padding: 0.3rem 0.8rem;
+			font-size: 0.9rem;
+		}
+	}
+</style> 

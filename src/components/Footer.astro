@@ -1,0 +1,75 @@
+---
+// Footer component for contact info
+---
+
+<footer class="footer-contact" id="footer-contact">
+	<div class="footer-content">
+		<p id="footer-contact-text">
+			Contacto: <a href="mailto:juanisidromejia@gmail.com">juanisidromejia@gmail.com</a> | WhatsApp: <a href="https://wa.me/593981985015" target="_blank" rel="noopener">(+593) 0981985015</a>
+		</p>
+	</div>
+</footer>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		const translations = {
+			es: {
+				contact: 'Contacto: ',
+				whatsapp: 'WhatsApp: '
+			},
+			en: {
+				contact: 'Contact: ',
+				whatsapp: 'WhatsApp: '
+			}
+		};
+		function renderFooter(lang) {
+			const text = translations[lang] || translations['es'];
+			document.getElementById('footer-contact-text').innerHTML = `${text.contact}<a href="mailto:juanisidromejia@gmail.com">juanisidromejia@gmail.com</a> | ${text.whatsapp}<a href="https://wa.me/593981985015" target="_blank" rel="noopener">(+593) 0981985015</a>`;
+		}
+		function getCurrentLang() {
+			return localStorage.getItem('selectedLanguage') || (navigator.language.startsWith('es') ? 'es' : 'en');
+		}
+		let currentLang = getCurrentLang();
+		renderFooter(currentLang);
+		const observer = new MutationObserver(() => {
+			const newLang = getCurrentLang();
+			if (newLang !== currentLang) {
+				currentLang = newLang;
+				renderFooter(currentLang);
+			}
+		});
+		observer.observe(document.body, { subtree: true, childList: true, attributes: true });
+		document.querySelectorAll('.lang-btn').forEach(btn => {
+			btn.addEventListener('click', function() {
+				const lang = this.getAttribute('data-lang');
+				renderFooter(lang);
+			});
+		});
+	});
+</script>
+
+<style>
+	.footer-contact {
+		background: #222;
+		color: #fff;
+		padding: 1.5rem 0;
+		text-align: center;
+		margin-top: 2rem;
+	}
+	.footer-content {
+		max-width: 900px;
+		margin: 0 auto;
+		font-size: 1.1rem;
+	}
+	.footer-content a {
+		color: #ffe082;
+		text-decoration: underline;
+		font-weight: 500;
+		word-break: break-all;
+	}
+	@media (max-width: 600px) {
+		.footer-content {
+			font-size: 1rem;
+		}
+	}
+</style> 
