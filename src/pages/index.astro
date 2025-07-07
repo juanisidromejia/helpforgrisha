@@ -1,0 +1,36 @@
+---
+import Header from '../components/Header.astro';
+import IntroSection from '../components/IntroSection.astro';
+import Updates from '../components/Updates.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/jpeg" href="/favicon.jpeg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Help for Grisha</title>
+		<!-- SEO Meta Tags -->
+		<meta name="description" content="Help Grisha, a child from Ecuador fighting cancer. Support his treatment and family by donating. Every contribution counts!" />
+		<meta name="keywords" content="donate, help, child, cancer, Ecuador, fundraising, solidarity, medical, support, charity, Grisha, niño, cáncer, Ecuador, donar, ayuda, solidaridad, recaudación, medicina, caridad" />
+		<!-- Open Graph Meta Tags -->
+		<meta property="og:title" content="Help for Grisha" />
+		<meta property="og:description" content="Help Grisha, a child from Ecuador fighting cancer. Support his treatment and family by donating. Every contribution counts!" />
+		<meta property="og:type" content="website" />
+		<meta property="og:image" content="/favicon.jpeg" />
+		<meta property="og:url" content="https://[YOUR_SITE_URL]" />
+		<!-- Twitter Card Meta Tags -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="Help for Grisha" />
+		<meta name="twitter:description" content="Help Grisha, a child from Ecuador fighting cancer. Support his treatment and family by donating. Every contribution counts!" />
+		<meta name="twitter:image" content="/favicon.jpeg" />
+	</head>
+	<body>
+		<Header />
+		<IntroSection />
+		<Updates />
+		<Footer />
+	</body>
+</html>
