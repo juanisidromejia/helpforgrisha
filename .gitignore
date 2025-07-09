@@ -1,0 +1,12 @@
+    # Directorios
+    node_modules/
+    dist/
+    .astro/
+    .svelte-kit/
+
+    # Archivos
+    .env
+    .env.local
+    *.log
+    *.swp
+    .DS_Store
