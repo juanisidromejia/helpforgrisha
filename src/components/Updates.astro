@@ -1,51 +1,113 @@
 ---
-import updatesEs from '../content/updates.es.md?raw';
-import updatesEn from '../content/updates.en.md?raw';
+import { getCollection } from 'astro:content';
+import { getLangFromUrl, useTranslations } from "../i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+// Get the correct update entry based on the language
+const updatesEntry = await getCollection('updates', ({ id }) => {
+  const desiredLang = lang.split('-')[0]; // 'es' or 'en'
+  return id === `updates.${desiredLang}.md`;
+});
+
+// Assuming there's only one entry per language, take the first one
+const currentUpdate = updatesEntry[0];
+
+// Fallback if no entry is found for the current language
+const fallbackUpdate = await getCollection('updates', ({ id }) => id === 'updates.es.md');
+const displayUpdate = currentUpdate || fallbackUpdate[0];
+
+// Extract data and renderable content
+const { data, render } = displayUpdate;
+const { Content } = await render();
+
+// Define a simple client-side translation for the main title, if needed
+// Or, if the main title comes from the Markdown frontmatter, use that directly.
+const clientTranslations = {
+    es: {
+        mainTitle: 'Novedades',
+    },
+    en: {
+        mainTitle: 'Updates',
+    }
+};
+
+const currentClientLang = lang.split('-')[0];
+const mainTitle = clientTranslations[currentClientLang]?.mainTitle || clientTranslations.es.mainTitle;
+
 ---
 
 <section class="updates-section">
 	<div class="container">
-		<h2 class="updates-title" id="updates-title">Novedades</h2>
-		<div id="updates-content" class="updates-content"></div>
+		<h2 class="updates-title" id="updates-title">{mainTitle}</h2>
+		<div id="updates-content" class="updates-content">
+            <!-- Render the Markdown content here -->
+            <Content />
+		</div>
 	</div>
 </section>
 
-<script type="module">
-import { marked } from 'marked';
+<script is:inline>
+	document.addEventListener('DOMContentLoaded', function() {
+		// This script will now only handle the main section title,
+		// as the content comes from Markdown rendered by Astro.
+		const clientTranslations = {
+			es: {
+				mainTitle: 'Novedades',
+			},
+			en: {
+				mainTitle: 'Updates',
+			}
+		};
 
-document.addEventListener('DOMContentLoaded', function() {
-	const updates = {
-		es: updatesEs?.trim() || 'Iremos anunciando el progreso del estado de Grisha.',
-		en: updatesEn?.trim() || "We will be announcing updates on Grisha's condition."
-	};
-	const titles = {
-		es: 'Novedades',
-		en: 'Updates'
-	};
-	function getCurrentLang() {
-		return localStorage.getItem('selectedLanguage') || (navigator.language.startsWith('es') ? 'es' : 'en');
-	}
-	function renderUpdates(lang) {
-		document.getElementById('updates-title').textContent = titles[lang];
-		document.getElementById('updates-content').innerHTML = marked.parse(updates[lang]);
-	}
-	let currentLang = getCurrentLang();
-	renderUpdates(currentLang);
-	const observer = new MutationObserver(() => {
-		const newLang = getCurrentLang();
-		if (newLang !== currentLang) {
-			currentLang = newLang;
-			renderUpdates(currentLang);
+		function getCurrentLangClient() {
+			return localStorage.getItem('selectedLanguage') || (navigator.language.startsWith('es') ? 'es' : 'en');
 		}
-	});
-	observer.observe(document.body, { subtree: true, childList: true, attributes: true });
-	document.querySelectorAll('.lang-btn').forEach(btn => {
-		btn.addEventListener('click', function() {
-			const lang = this.getAttribute('data-lang');
-			renderUpdates(lang);
+
+		function updateMainTitle(lang) {
+			const titleElement = document.getElementById('updates-title');
+			if (titleElement) {
+				const currentClientContent = clientTranslations[lang] || clientTranslations.es;
+				titleElement.textContent = currentClientContent.mainTitle;
+			}
+		}
+
+		// Initial render based on client-side language
+		let clientLang = getCurrentLangClient();
+		updateMainTitle(clientLang);
+
+		// Listen for language changes from buttons
+		document.querySelectorAll('.lang-btn').forEach(btn => {
+			btn.addEventListener('click', function() {
+				const lang = this.getAttribute('data-lang');
+				localStorage.setItem('selectedLanguage', lang); // Ensure localStorage is updated
+				updateMainTitle(lang);
+			});
 		});
+
+		// Consider removing the MutationObserver if not strictly necessary,
+		// as the .lang-btn listener should cover most cases for client-side language changes.
+		// If other parts of your app change the language without a click,
+		// you might need a more robust global event system (e.g., CustomEvent).
+		const observer = new MutationObserver((mutations) => {
+			let langChanged = false;
+			mutations.forEach(mutation => {
+				if (mutation.type === 'attributes' && mutation.attributeName === 'data-lang') {
+					langChanged = true;
+				}
+			});
+			if (langChanged) {
+				const newLang = getCurrentLangClient();
+				if (newLang !== clientLang) {
+					clientLang = newLang;
+					updateMainTitle(clientLang);
+				}
+			}
+		});
+
+		observer.observe(document.body, { subtree: true, attributes: true });
 	});
-});
 </script>
 
 <style>
@@ -74,4 +136,55 @@ document.addEventListener('DOMContentLoaded', function() {
 		padding: 2rem 1.5rem;
 		min-height: 80px;
 	}
-</style> 
+
+	/* Estilos para el markdown renderizado */
+	.updates-content h1 {
+		color: #2c3e50;
+		font-size: 1.8rem;
+		margin-bottom: 1rem;
+		font-weight: 700;
+	}
+
+	.updates-content h2 {
+		color: #34495e;
+		font-size: 1.4rem;
+		margin: 1.5rem 0 0.8rem 0;
+		font-weight: 600;
+	}
+
+	.updates-content h3 {
+		color: #2c3e50;
+		font-size: 1.4rem;
+		margin-bottom: 1rem;
+		font-weight: 600;
+	}
+
+	.updates-content ul {
+		margin: 0.8rem 0;
+		padding-left: 1.5rem;
+	}
+
+	.updates-content li {
+		margin: 0.3rem 0;
+	}
+
+	.updates-content p {
+		margin: 0.8rem 0;
+	}
+
+	.updates-content strong {
+		color: #34495e;
+		font-weight: 600;
+	}
+
+	.updates-content em {
+		font-style: italic;
+		color: #7f8c8d;
+	}
+
+	.updates-content hr {
+		border: none;
+		border-top: 1px solid #e0e0e0;
+		margin: 1.5rem 0;
+	}
+</style>
