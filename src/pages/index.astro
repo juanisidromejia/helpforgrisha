@@ -9,7 +9,7 @@ import Footer from '../components/Footer.astro';
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/jpeg" href="/favicon.jpeg" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Help for Grisha</title>
 		<!-- SEO Meta Tags -->
@@ -34,3 +34,65 @@ import Footer from '../components/Footer.astro';
 		<Footer />
 	</body>
 </html>
+
+<style is:global>
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+
+	body {
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+		line-height: 1.6;
+		color: #333;
+		overflow-x: hidden;
+		width: 100%;
+		min-height: 100vh;
+	}
+
+	html {
+		scroll-behavior: smooth;
+	}
+
+	/* Mejoras para móviles */
+	@media (max-width: 768px) {
+		body {
+			font-size: 16px;
+		}
+		
+		/* Prevenir zoom en inputs en iOS */
+		input, select, textarea {
+			font-size: 16px;
+		}
+	}
+
+	/* Asegurar que las imágenes sean responsivas */
+	img {
+		max-width: 100%;
+		height: auto;
+	}
+
+	/* Mejorar la legibilidad en móviles */
+	@media (max-width: 480px) {
+		body {
+			font-size: 14px;
+		}
+	}
+
+	/* Forzar el ajuste de texto largo en toda la página */
+	* {
+		word-break: break-all;
+		overflow-wrap: anywhere;
+		word-wrap: break-word;
+	}
+
+	/* Estilos específicos para direcciones largas */
+	.help-data, .wallet-address, .help-link {
+		word-break: break-all !important;
+		overflow-wrap: anywhere !important;
+		word-wrap: break-word !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+</style>

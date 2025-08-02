@@ -187,4 +187,84 @@ const mainTitle = clientTranslations[currentClientLang]?.mainTitle || clientTran
 		border-top: 1px solid #e0e0e0;
 		margin: 1.5rem 0;
 	}
+
+	/* Mejoras para tablets */
+	@media (max-width: 1024px) {
+		.updates-content {
+			max-width: 90%;
+			padding: 1.8rem 1.3rem;
+		}
+	}
+
+	/* Mejoras para móviles */
+	@media (max-width: 768px) {
+		.updates-section {
+			padding: 2rem 0 1.5rem 0;
+		}
+		
+		.updates-title {
+			font-size: 1.8rem;
+			margin-bottom: 1.2rem;
+		}
+		
+		.updates-content {
+			max-width: 95%;
+			padding: 1.5rem 1rem;
+			font-size: 1rem;
+			line-height: 1.6;
+		}
+
+		.updates-content h1 {
+			font-size: 1.6rem;
+		}
+
+		.updates-content h2 {
+			font-size: 1.3rem;
+			margin: 1.3rem 0 0.7rem 0;
+		}
+
+		.updates-content h3 {
+			font-size: 1.3rem;
+		}
+
+		.updates-content ul {
+			padding-left: 1.2rem;
+		}
+	}
+
+	/* Mejoras para móviles pequeños */
+	@media (max-width: 480px) {
+		.updates-section {
+			padding: 1.5rem 0 1rem 0;
+		}
+		
+		.updates-title {
+			font-size: 1.6rem;
+			margin-bottom: 1rem;
+		}
+		
+		.updates-content {
+			max-width: 98%;
+			padding: 1.2rem 0.8rem;
+			font-size: 0.95rem;
+			line-height: 1.5;
+		}
+
+		.updates-content h1 {
+			font-size: 1.4rem;
+		}
+
+		.updates-content h2 {
+			font-size: 1.2rem;
+			margin: 1.2rem 0 0.6rem 0;
+		}
+
+		.updates-content h3 {
+			font-size: 1.2rem;
+		}
+
+		.updates-content ul {
+			padding-left: 1rem;
+		}
+	}
 </style>
