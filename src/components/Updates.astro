@@ -1,95 +1,137 @@
 ---
-import { getCollection } from 'astro:content';
-import { getLangFromUrl, useTranslations } from "../i18n/utils";
-
-const lang = getLangFromUrl(Astro.url);
-const t = useTranslations(lang);
-
-// Get the correct update entry based on the language
-const updatesEntry = await getCollection('updates', ({ id }) => {
-  const desiredLang = lang.split('-')[0]; // 'es' or 'en'
-  return id === `updates.${desiredLang}.md`;
-});
-
-// Assuming there's only one entry per language, take the first one
-const currentUpdate = updatesEntry[0];
-
-// Fallback if no entry is found for the current language
-const fallbackUpdate = await getCollection('updates', ({ id }) => id === 'updates.es.md');
-const displayUpdate = currentUpdate || fallbackUpdate[0];
-
-// Extract data and renderable content
-const { data, render } = displayUpdate;
-const { Content } = await render();
-
-// Define a simple client-side translation for the main title, if needed
-// Or, if the main title comes from the Markdown frontmatter, use that directly.
-const clientTranslations = {
-    es: {
-        mainTitle: 'Novedades',
-    },
-    en: {
-        mainTitle: 'Updates',
-    }
-};
-
-const currentClientLang = lang.split('-')[0];
-const mainTitle = clientTranslations[currentClientLang]?.mainTitle || clientTranslations.es.mainTitle;
-
+// Simplified Updates component with embedded content
 ---
 
 <section class="updates-section">
 	<div class="container">
-		<h2 class="updates-title" id="updates-title">{mainTitle}</h2>
+		<h2 class="updates-title" id="updates-title">Novedades</h2>
 		<div id="updates-content" class="updates-content">
-            <!-- Render the Markdown content here -->
-            <Content />
+			<div id="updates-markdown-content">
+				<!-- Content will be rendered by JavaScript -->
+			</div>
 		</div>
 	</div>
 </section>
 
 <script is:inline>
 	document.addEventListener('DOMContentLoaded', function() {
-		// This script will now only handle the main section title,
-		// as the content comes from Markdown rendered by Astro.
-		const clientTranslations = {
+		const translations = {
 			es: {
 				mainTitle: 'Novedades',
+				content: `# Actualizaciones del Caso de Grisha
+
+## Julio 7, 2025
+
+Hemos iniciado la campaña de recaudación de fondos para ayudar a Grisha en su tratamiento médico. 
+
+### Estado Actual
+- Grisha está recibiendo tratamiento médico especializado
+- La familia necesita apoyo para cubrir los costos médicos
+- Cada donación es muy importante para su recuperación
+
+### Próximos Pasos
+- Continuar con el tratamiento médico
+- Mantener actualizada la información del caso
+- Agradecer a todos los donantes por su apoyo
+
+---
+
+*Gracias por tu solidaridad y apoyo. Cada donación hace una diferencia real en la vida de Grisha.*
+
+---
+
+## Agosto 3, 2024
+
+Este domingo, 3 de agosto, se realizará un festival de recaudación de fondos denominado "El Festival por la Vida de Grisha". El objetivo de este evento es recaudar fondos para apoyar el tratamiento médico de Grisha. Pueden encontrar más detalles y actualizaciones en el siguiente enlace de Instagram: [https://www.instagram.com/reel/DMdXOdjxG2p/?utm_source=ig_web_copy_link](https://www.instagram.com/reel/DMdXOdjxG2p/?utm_source=ig_web_copy_link)`
 			},
 			en: {
 				mainTitle: 'Updates',
+				content: `# Grisha's Case Updates
+
+## July 7, 2025
+
+We have started the fundraising campaign to help Grisha with his medical treatment. 
+
+### Current Status
+- Grisha is receiving specialized medical treatment
+- The family needs support to cover medical costs
+- Every donation is very important for his recovery
+
+### Next Steps
+- Continue with medical treatment
+- Keep case information updated
+- Thank all donors for their support
+
+---
+
+## August 3, 2024
+
+This Sunday, August 3rd, a fundraising festival named "The Festival for Grisha's Life" will be held. The goal of this event is to raise funds to support Grisha's medical treatment. You can find more details and updates on the following Instagram link: [https://www.instagram.com/reel/DMdXOdjxG2p/?utm_source=ig_web_copy_link](https://www.instagram.com/reel/DMdXOdjxG2p/?utm_source=ig_web_copy_link)
+
+---
+
+*Thank you for your solidarity and support. Every donation makes a real difference in Grisha's life.*`
 			}
 		};
 
-		function getCurrentLangClient() {
+		function getCurrentLang() {
 			return localStorage.getItem('selectedLanguage') || (navigator.language.startsWith('es') ? 'es' : 'en');
 		}
 
-		function updateMainTitle(lang) {
+		function renderUpdates(lang) {
 			const titleElement = document.getElementById('updates-title');
-			if (titleElement) {
-				const currentClientContent = clientTranslations[lang] || clientTranslations.es;
-				titleElement.textContent = currentClientContent.mainTitle;
+			const contentElement = document.getElementById('updates-markdown-content');
+			
+			if (titleElement && contentElement) {
+				const currentLang = translations[lang] || translations.es;
+				titleElement.textContent = currentLang.mainTitle;
+				
+				// Simple markdown rendering (basic)
+				let content = currentLang.content;
+				
+				// Convert markdown to HTML
+				content = content
+					.replace(/^# (.*$)/gim, '<h1>$1</h1>')
+					.replace(/^## (.*$)/gim, '<h2>$1</h2>')
+					.replace(/^### (.*$)/gim, '<h3>$1</h3>')
+					.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+					.replace(/\*(.*?)\*/g, '<em>$1</em>')
+					.replace(/^- (.*$)/gim, '<li>$1</li>')
+					.replace(/\n\n/g, '</p><p>')
+					.replace(/^<p>/, '')
+					.replace(/<\/p>$/, '');
+				
+				// Wrap in paragraphs
+				content = '<p>' + content + '</p>';
+				
+				// Handle lists
+				content = content.replace(/<li>(.*?)<\/li>/g, '<ul><li>$1</li></ul>');
+				content = content.replace(/<\/ul>\s*<ul>/g, '');
+				
+				// Handle links
+				content = content.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+				
+				// Handle horizontal rules
+				content = content.replace(/^---$/gm, '<hr>');
+				
+				contentElement.innerHTML = content;
 			}
 		}
 
-		// Initial render based on client-side language
-		let clientLang = getCurrentLangClient();
-		updateMainTitle(clientLang);
+		// Initial render
+		let currentLang = getCurrentLang();
+		renderUpdates(currentLang);
 
-		// Listen for language changes from buttons
+		// Listen for language changes
 		document.querySelectorAll('.lang-btn').forEach(btn => {
 			btn.addEventListener('click', function() {
 				const lang = this.getAttribute('data-lang');
-				localStorage.setItem('selectedLanguage', lang); // Ensure localStorage is updated
-				updateMainTitle(lang);
+				localStorage.setItem('selectedLanguage', lang);
+				renderUpdates(lang);
 			});
 		});
 
-		// Consider removing the MutationObserver if not strictly necessary,
-		// as the .lang-btn listener should cover most cases for client-side language changes.
-		// If other parts of your app change the language without a click,
-		// you might need a more robust global event system (e.g., CustomEvent).
+		// MutationObserver for other language changes
 		const observer = new MutationObserver((mutations) => {
 			let langChanged = false;
 			mutations.forEach(mutation => {
@@ -98,10 +140,10 @@ const mainTitle = clientTranslations[currentClientLang]?.mainTitle || clientTran
 				}
 			});
 			if (langChanged) {
-				const newLang = getCurrentLangClient();
-				if (newLang !== clientLang) {
-					clientLang = newLang;
-					updateMainTitle(clientLang);
+				const newLang = getCurrentLang();
+				if (newLang !== currentLang) {
+					currentLang = newLang;
+					renderUpdates(currentLang);
 				}
 			}
 		});
@@ -186,6 +228,16 @@ const mainTitle = clientTranslations[currentClientLang]?.mainTitle || clientTran
 		border: none;
 		border-top: 1px solid #e0e0e0;
 		margin: 1.5rem 0;
+	}
+
+	.updates-content a {
+		color: #3498db;
+		text-decoration: none;
+		font-weight: 500;
+	}
+
+	.updates-content a:hover {
+		text-decoration: underline;
 	}
 
 	/* Mejoras para tablets */
